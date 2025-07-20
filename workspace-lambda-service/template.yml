@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Serverless Spring Boot 2 API - com.example::workspace-lambda-service
+Globals:
+  Api:
+    EndpointConfiguration: REGIONAL
+
+Resources:
+  WorkspaceLambdaServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: com.example.StreamLambdaHandler::handleRequest
+      Runtime: java17
+      CodeUri: target/workspace-lambda-service-1.0-SNAPSHOT-lambda-package.zip
+      MemorySize: 512
+      Policies: AWSLambdaBasicExecutionRole
+      Timeout: 900
+      Events:
+        ProxyResource:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+    Metadata:
+      BuildMethod: maven
+
+Outputs:
+  WorkspaceLambdaServiceApi:
+    Description: URL for application
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/dev'
+    Export:
+      Name: WorkspaceLambdaServiceApi
