@@ -4,6 +4,7 @@ const UrgentToCall = () => {
   const data = [
     { name: 'John Doe', phone: '555-123-9094', status: 'Urgent' },
     { name: 'Jane Smith hhhhhh ', phone: '555-567-8098', status: 'Urgent' },
+    { name: 'Kale Day ', phone: '299-567-8098', status: 'Urgent' },
     // Add more rows as needed
   ];
 
