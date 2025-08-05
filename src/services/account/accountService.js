@@ -60,3 +60,46 @@ export const createAccount = async (accountData) => {
       throw error;
     }
 };
+
+export const searchAccounts = async ({
+  q,
+  sortBy,
+  sortOrder,
+  pageSize = 10,
+  startAfterId
+} = {}) => {
+  try {
+    const queryParams = new URLSearchParams();
+    if (q) queryParams.append('q', q);
+    if (sortBy) queryParams.append('sortBy', sortBy);
+    if (sortOrder) queryParams.append('sortOrder', sortOrder);
+    if (pageSize) queryParams.append('pageSize', pageSize);
+    if (startAfterId) queryParams.append('startAfterId', startAfterId);
+
+    const response = await fetch(`${ACCOUNTS_API}/search?${queryParams.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': ACCOUNTS_API_AUTH_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to search accounts: ${response.status} ${response.statusText}`);
+    }
+
+    const text = await response.text();
+    if (!text) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Empty response body.');
+      }
+      return { accounts: [], totalAccounts: 0 };
+    }
+
+    const data = JSON.parse(text);
+    return data;
+  } catch (error) {
+    console.error('Error searching accounts:', error);
+    return { accounts: [], totalAccounts: 0 };
+  }
+};
