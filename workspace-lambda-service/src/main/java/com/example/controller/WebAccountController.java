@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @EnableWebMvc
 @RequestMapping("/api/accounts")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:3000", "https://localhost:3000"})
 public class WebAccountController {
     private final WebAccountService service;
     private final String DEFAULT_PAGE_SIZE = "10";
@@ -40,6 +40,22 @@ public class WebAccountController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/migrate-search")
+    public ResponseEntity<Map<String, Object>> migrateAccountsForSearch() {
+        try {
+            service.migrateExistingAccountsForSearch();
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Migration completed successfully");
+            response.put("status", "success");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Migration failed: " + e.getMessage());
+            response.put("status", "error");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping(value = "/{accountId}", produces = "application/json")
     public ResponseEntity<WebAccount> getAccountById(@PathVariable("accountId") String accountId) throws ExecutionException, InterruptedException {
         WebAccount foundAccount = service.getAccountById(accountId);
@@ -51,13 +67,18 @@ public class WebAccountController {
     }
 
     @GetMapping(value = "/search", produces = "application/json")
-    public ResponseEntity<List<WebAccount>> searchAccountsByName(@RequestParam("q") String keyword) throws ExecutionException, InterruptedException {
-        List<WebAccount> results = service.searchAccountsByName(keyword);
-        if (results.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(results, HttpStatus.OK);
-        }
+    public ResponseEntity<Map<String, Object>> advancedSearchAccounts(
+            @RequestParam(value = "q", required = false) String q,
+            @RequestParam(value = "sortBy", required = false) String sortBy,
+            @RequestParam(value = "sortOrder", required = false) String sortOrder,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+            @RequestParam(value = "startAfterId", required = false) String startAfterId
+    ) throws Exception {
+        WebAccountService.SearchResult result = service.advancedSearchAccountsWithCount(q, null, null, null, sortBy, sortOrder, pageSize, startAfterId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("accounts", result.accounts);
+        response.put("totalAccounts", result.totalAccounts);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping(produces = "application/json")
