@@ -40,9 +40,6 @@ export const fetchAccounts = async (startAfterId = '', pageSize = 10) => {
   }
 };
 
-
-
-
 export const createAccount = async (accountData) => {
     try {
       const response = await fetch(ACCOUNTS_API, {
@@ -57,6 +54,41 @@ export const createAccount = async (accountData) => {
       return await response.json();
     } catch (error) {
       console.error('Error creating account:', error);
+      throw error;
+    }
+};
+
+export const updateAccount = async (accountId, accountData) => {
+    try {
+      const response = await fetch(`${ACCOUNTS_API}/${accountId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': ACCOUNTS_API_AUTH_KEY,
+         },
+        body: JSON.stringify(accountData),
+      });
+      if (!response.ok) throw new Error('Failed to update account');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating account:', error);
+      throw error;
+    }
+};
+
+export const deleteAccount = async (accountId) => {
+    try {
+      const response = await fetch(`${ACCOUNTS_API}/${accountId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': ACCOUNTS_API_AUTH_KEY,
+         },
+      });
+      if (!response.ok) throw new Error('Failed to delete account');
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting account:', error);
       throw error;
     }
 };
