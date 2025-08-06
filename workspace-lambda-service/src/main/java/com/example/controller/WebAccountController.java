@@ -40,6 +40,41 @@ public class WebAccountController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping(value = "/{accountId}", produces = "application/json", consumes = "application/json")
+    public ResponseEntity<Map<String, String>> updateAccount(@PathVariable("accountId") String accountId, @RequestBody WebAccount account) throws ExecutionException, InterruptedException {
+        // Check if account exists
+        WebAccount existingAccount = service.getAccountById(accountId);
+        if (existingAccount == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        
+        // Preserve creation date and set updated date
+        account.setAccountId(accountId);
+        account.setCreation_date(existingAccount.getCreation_date());
+        account.setUpdated_date(new Date());
+        
+        String updateTime = service.SaveAccount(account);
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("updateTime", updateTime);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping(value = "/{accountId}", produces = "application/json")
+    public ResponseEntity<Map<String, String>> deleteAccount(@PathVariable("accountId") String accountId) throws ExecutionException, InterruptedException {
+        // Check if account exists
+        WebAccount existingAccount = service.getAccountById(accountId);
+        if (existingAccount == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        
+        service.deleteAccount(accountId);
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Account deleted successfully");
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/migrate-search")
     public ResponseEntity<Map<String, Object>> migrateAccountsForSearch() {
         try {
