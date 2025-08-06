@@ -289,4 +289,16 @@ public class WebAccountService {
         
         logger.info("Migration completed. Updated {} accounts.", updatedCount);
     }
+
+    /**
+     * Delete an account by its ID
+     */
+    public void deleteAccount(String accountId) throws ExecutionException, InterruptedException {
+        logger.info("Deleting account with ID: {}", accountId);
+        ApiFuture<WriteResult> future = firestore.collection(COLLECTION_NAME)
+                .document(accountId)
+                .delete();
+        future.get();
+        logger.info("Account deleted successfully: {}", accountId);
+    }
 }
