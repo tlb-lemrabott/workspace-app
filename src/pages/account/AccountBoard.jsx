@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { searchAccounts, createAccount } from '../../services/account/accountService.js';
+import { searchAccounts, createAccount, updateAccount, deleteAccount } from '../../services/account/accountService.js';
 import AccountTable from '../../components/account/AccountTable';
 import Spinner from '../../components/common/Spinner';
 import { FaPlus, FaSearch } from 'react-icons/fa';
 import AddAccountModal from '../../components/account/AddAccountModal';
+import EditAccountModal from '../../components/account/EditAccountModal';
 import { toast } from 'react-toastify';
 
 const PAGE_SIZE = 10;
@@ -11,7 +12,9 @@ const PAGE_SIZE = 10;
 const AccountBoard = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
   const [search, setSearch] = useState('');
   const [totalAccounts, setTotalAccounts] = useState(0);
   const [lastAccountId, setLastAccountId] = useState(null);
@@ -51,6 +54,12 @@ const AccountBoard = () => {
         ...opts
       };
       const data = await searchAccounts(params);
+      console.log('Search response data:', data);
+      console.log('Accounts array:', data.accounts);
+      if (data.accounts && data.accounts.length > 0) {
+        console.log('First account object:', data.accounts[0]);
+        console.log('First account keys:', Object.keys(data.accounts[0]));
+      }
       setAccounts(data.accounts || []);
       setLastAccountId(data.accounts && data.accounts.length > 0 ? data.accounts[data.accounts.length - 1].accountId : null);
       setNoData(!data.accounts || data.accounts.length === 0);
@@ -88,12 +97,46 @@ const AccountBoard = () => {
     try {
       await createAccount(formData);
       toast.success('✅ Account created successfully!');
-      setShowModal(false);
+      setShowAddModal(false);
       handleSearch();
     } catch (error) {
       console.error('Error adding account:', error);
       toast.error('❌ Failed to create account.');
     }
+  };
+
+  const handleEditAccount = (account) => {
+    setEditingAccount(account);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateAccount = async (formData) => {
+    try {
+      await updateAccount(editingAccount.accountId, formData);
+      toast.success('✅ Account updated successfully!');
+      setShowEditModal(false);
+      setEditingAccount(null);
+      handleSearch();
+    } catch (error) {
+      console.error('Error updating account:', error);
+      toast.error('❌ Failed to update account.');
+    }
+  };
+
+  const handleDeleteAccount = async (accountId) => {
+    try {
+      await deleteAccount(accountId);
+      toast.success('✅ Account deleted successfully!');
+      handleSearch();
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error('❌ Failed to delete account.');
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingAccount(null);
   };
 
   return (
@@ -121,7 +164,7 @@ const AccountBoard = () => {
           </div>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowAddModal(true)}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition duration-300"
         >
           <FaPlus className="text-white" />
@@ -137,12 +180,22 @@ const AccountBoard = () => {
         totalAccounts={totalAccounts}
         onLoadMore={handleLoadMore}
         noData={noData}
+        onEdit={handleEditAccount}
+        onDelete={handleDeleteAccount}
       />
 
-      {showModal && (
+      {showAddModal && (
         <AddAccountModal
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowAddModal(false)}
           onSubmit={handleAddAccount}
+        />
+      )}
+
+      {showEditModal && editingAccount && (
+        <EditAccountModal
+          account={editingAccount}
+          onClose={handleCloseEditModal}
+          onSubmit={handleUpdateAccount}
         />
       )}
     </div>
