@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Spinner from '../common/Spinner';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const AddAccountModal = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const AddAccountModal = ({ onClose, onSubmit }) => {
 
   const [passwordOption, setPasswordOption] = useState('insert');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -26,6 +28,10 @@ const AddAccountModal = ({ onClose, onSubmit }) => {
     if (value === 'generate') {
       setFormData((prev) => ({ ...prev, password: '' }));
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e) => {
@@ -95,14 +101,24 @@ const AddAccountModal = ({ onClose, onSubmit }) => {
               </label>
             </div>
             {passwordOption === 'insert' && (
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full border border-gray-300 p-2 rounded mt-2"
-                required
-              />
+              <div className="relative mt-2">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 p-2 rounded pr-10"
+                  required
+                  placeholder="Enter password"
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             )}
           </div>
 

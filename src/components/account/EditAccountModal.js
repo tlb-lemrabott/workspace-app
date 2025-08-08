@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaSave } from 'react-icons/fa';
+import { FaTimes, FaSave, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const EditAccountModal = ({ account, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -9,6 +9,8 @@ const EditAccountModal = ({ account, onClose, onSubmit }) => {
     password: '',
     resourceLink: ''
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (account) {
@@ -28,6 +30,10 @@ const EditAccountModal = ({ account, onClose, onSubmit }) => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = (e) => {
@@ -102,15 +108,24 @@ const EditAccountModal = ({ account, onClose, onSubmit }) => {
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter password (leave empty to keep current)"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                placeholder="Enter password (leave empty to keep current)"
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
 
           <div>

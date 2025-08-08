@@ -52,13 +52,13 @@ const AccountRow = ({ account, onEdit, onDelete }) => {
     <tr className="border-b">
       <td className="px-4 py-2">{safeCompanyName}</td>
       <td className="px-4 py-2">{safeEmail}</td>
-      <td className="px-4 py-2 flex items-center gap-2">
+      <td className="px-4 py-2">
         <span>{getUsernameDisplay()}</span>
         <button onClick={toggleUsername} className="text-blue-600 hover:text-blue-800">
           {showUsername ? <FaEyeSlash /> : <FaEye />}
         </button>
       </td>
-      <td className="px-4 py-2 flex items-center gap-2">
+      <td className="px-4 py-2">
         <span>{getPasswordDisplay()}</span>
         <button onClick={togglePassword} className="text-blue-600 hover:text-blue-800">
           {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -72,7 +72,7 @@ const AccountRow = ({ account, onEdit, onDelete }) => {
       <td className="px-4 py-2">{formattedCreationDate}</td>
       <td className="px-4 py-2">{formattedUpdatedDate}</td>
       <td className="px-4 py-2">
-        <div className="flex gap-2">
+        <div>
           <button
             onClick={handleEdit}
             className="text-blue-600 hover:text-blue-800 p-1"
